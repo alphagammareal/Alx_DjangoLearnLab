@@ -1,5 +1,15 @@
 from django.urls import path
-from . import views
+from .views import (
+    index,
+    list_books,
+    LibraryDetailView,
+    register,
+    UserLoginView,
+    UserLogoutView,
+    add_book,
+    edit_book,
+    delete_book
+)
 
 urlpatterns = [
     path('', views.index, name='index'),
