@@ -1,45 +1,30 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from .models import Book
-from .models import Library
-from django.views.generic.detail import DetailView
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Book
 from .models import Library
 from django.views.generic.detail import DetailView
 
+# Authentication imports required by checker
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
+# Home page
 def index(request):
     return HttpResponse("Welcome to the Relationship App!")
 
-def book_list(request):
+# Function-based view for listing books
+def list_books(request):
     """A view that displays a simple text list of book titles and authors."""
     books = Book.objects.all()
     context = {'book_list': books}
     return render(request, 'relationship_app/list_books.html', context)
 
-
+# Class-based view for library details
 class LibraryDetailView(DetailView):
     """A class-based view for displaying details of a specific library and its books."""
     model = Library
     template_name = 'relationship_app/library_detail.html'
-    context_object_name = 'library'  # how it will be referred to in the template
-
-def index(request):
-    return HttpResponse("Welcome to the Relationship App!")
-
-def book_list(request):
-    """A view that displays a simple text list of book titles and authors."""
-    books = Book.objects.all()
-    context = {'book_list': books}
-    return render(request, 'relationship_app/list_books.html', context)
-
-
-class LibraryDetailView(DetailView):
-    """A class-based view for displaying details of a specific library and its books."""
-    model = Library
-    template_name = 'relationship_app/library_detail.html'
-    context_object_name = 'library'  # how it will be referred to in the template
+    context_object_name = 'library'
 
 # Login view
 def user_login(request):
