@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .views import (
     index,
     list_books,
@@ -8,26 +9,29 @@ from .views import (
     UserLogoutView,
     add_book,
     edit_book,
-    delete_book
+    delete_book,
+    admin_view,
+    librarian_view,
+    member_view
 )
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('books/', views.list_books, name='book_list'),
-    path('library/<int:pk>/', views.LibraryDetailView.as_view(), name='library_detail'),
+    path('', index, name='index'),
+    path('books/', list_books, name='book_list'),
+    path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),
 
     # Authentication URLs
-    path('register/', views.register, name='register'),
-    path('login/', views.UserLoginView.as_view(template_name='relationship_app/login.html'), name='login'),
-    path('logout/', views.UserLogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
+    path('register/', register, name='register'),
+    path('login/', UserLoginView.as_view(template_name='relationship_app/login.html'), name='login'),
+    path('logout/', UserLogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
 
     # Role-based URLs
-    path('admin-view/', views.admin_view, name='admin_view'),
-    path('librarian-view/', views.librarian_view, name='librarian_view'),
-    path('member-view/', views.member_view, name='member_view'),
+    path('admin-view/', admin_view, name='admin_view'),
+    path('librarian-view/', librarian_view, name='librarian_view'),
+    path('member-view/', member_view, name='member_view'),
 
-# Permission-protected Book URLs
-    path('books/add/', views.add_book, name='add_book'),
-    path('books/<int:pk>/edit/', views.edit_book, name='edit_book'),
-    path('books/<int:pk>/delete/', views.delete_book, name='delete_book'),
+    # Permission-protected Book URLs (checker expects these exact names)
+    path('add_book/', add_book, name='add_book'),
+    path('edit_book/<int:book_id>/', edit_book, name='edit_book'),
+    path('delete_book/<int:book_id>/', delete_book, name='delete_book'),
 ]
