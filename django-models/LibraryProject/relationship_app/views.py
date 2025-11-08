@@ -9,8 +9,8 @@ def index(request):
 def book_list(request):
     """A view that displays a simple text list of book titles and authors."""
     books = Book.objects.all()
-    output = "\n".join([f"{book.title} - {book.author.name}" for book in books])
-    return HttpResponse(output, content_type="text/plain")
+    context = {'book_list': books}
+    return render(request, 'relationship_app/list_books.html', context)
 
 
 class LibraryDetailView(DetailView):
