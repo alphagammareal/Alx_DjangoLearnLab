@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'csp.middleware.CSPMiddleware',
 
     # Your app
     'relationship_app',
@@ -35,6 +36,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -100,3 +102,37 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+# SECURITY: production settings (apply on deployed site only)
+DEBUG = False
+
+# Hostnames your site will serve
+ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']  # replace with your real host(s)
+
+# Browser-side protections
+SECURE_BROWSER_XSS_FILTER = True            # X-XSS-Protection header
+SECURE_CONTENT_TYPE_NOSNIFF = True          # X-Content-Type-Options: nosniff
+X_FRAME_OPTIONS = 'DENY'                    # prevents clickjacking (or 'SAMEORIGIN' if needed)
+
+# Cookie security (requires HTTPS)
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True              # prevent JS access to session cookie
+CSRF_COOKIE_HTTPONLY = False                # usually False because some clients expect JS access to CSRF token
+
+# HSTS (HTTP Strict Transport Security) — only enable after you have HTTPS
+SECURE_HSTS_SECONDS = 31536000  # one year; set to 0 while testing, then enable
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# SSL redirect (send http -> https)
+SECURE_SSL_REDIRECT = True  # set to True in production (requires HTTPS)
+
+# Content Security Policy — example using django-csp (see below)
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # try to avoid 'unsafe-inline' in production
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", "data:")
+
+# keep secret key secret in production (use env var)
+# SECRET_KEY = os.environ['DJANGO_SECRET_KEY']

@@ -1,0 +1,5 @@
+<form method="get" action="{% url 'book_list' %}">
+  {% csrf_token %} {# CSRF not strictly required for GET but OK to include #}
+  <input name="q" type="search" value="{{ request.GET.q|default:''|escape }}">
+  <button type="submit">Search</button>
+</form>
