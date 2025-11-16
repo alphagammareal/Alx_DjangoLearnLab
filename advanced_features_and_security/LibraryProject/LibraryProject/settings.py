@@ -144,3 +144,6 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Prevent clickjacking
 X_FRAME_OPTIONS = 'DENY'
+
+# Honor the X-Forwarded-Proto header from proxies (needed for HTTPS behind proxy)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
