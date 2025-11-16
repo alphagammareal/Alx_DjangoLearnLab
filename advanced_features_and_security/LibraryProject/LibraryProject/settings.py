@@ -126,15 +126,21 @@ AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
 # === SECURITY SETTINGS ===
 
-# Protect against XSS attacks
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Secure Cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Browser Security Headers
 SECURE_BROWSER_XSS_FILTER = True
-
-# Prevent clickjacking
-X_FRAME_OPTIONS = "DENY"
-
-# Prevent MIME-type sniffing
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# Ensure cookies are only sent via HTTPS
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# Prevent clickjacking
+X_FRAME_OPTIONS = 'DENY'
