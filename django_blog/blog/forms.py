@@ -1,24 +1,21 @@
 from django import forms
 from .models import Post, Comment
 from django.contrib.auth.forms import UserCreationForm
-from taggit.forms import TagWidget
+from taggit.forms import TagWidget  # make sure this line exists
 
-# Post Form
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']
         widgets = {
-            'tags': TagWidget(attrs={'class': 'tag-input'}),
+            'tags': TagWidget(attrs={'class': 'tag-input'}),  # TagWidget() must appear here
         }
 
-# Comment Form
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['content']
 
-# Custom User Creation Form
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         fields = UserCreationForm.Meta.fields + ('email',)
