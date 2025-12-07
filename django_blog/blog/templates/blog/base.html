@@ -34,6 +34,10 @@
         {% endfor %}
     </ul>
 {% endif %}
+<form method="get" action="{% url 'blog:post_search' %}">
+    <input type="text" name="q" placeholder="Search posts...">
+    <button type="submit">Search</button>
+</form>
 
 
     <main>

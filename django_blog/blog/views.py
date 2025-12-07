@@ -1,36 +1,39 @@
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib import messages
-from .models import Post, Comment
-from .forms import PostForm, CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Q
 from django.contrib.auth.models import User
-from .forms import CommentForm
 
+from .models import Post, Comment
+from taggit.models import Tag
+from .forms import PostForm, CustomUserCreationForm, CommentForm
 
-# List and Detail (public)
+# --------------------------
+# Post Views
+# --------------------------
+
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html' 
+    template_name = 'blog/post_list.html'
     context_object_name = 'posts'
     paginate_by = 10
+
 
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
 
-# Create (authenticated users only)
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
 
     def form_valid(self, form):
-        # set the author before saving
         form.instance.author = self.request.user
         response = super().form_valid(form)
         messages.success(self.request, "Post created successfully.")
@@ -39,15 +42,14 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('blog:post_detail', kwargs={'pk': self.object.pk})
 
-# Update (only author)
+
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
 
     def test_func(self):
-        post = self.get_object()
-        return post.author == self.request.user
+        return self.get_object().author == self.request.user
 
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to edit this post.")
@@ -60,24 +62,28 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse('blog:post_detail', kwargs={'pk': self.object.pk})
 
-# Delete (only author)
+
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
     success_url = reverse_lazy('blog:post_list')
 
     def test_func(self):
-        post = self.get_object()
-        return post.author == self.request.user
+        return self.get_object().author == self.request.user
 
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to delete this post.")
         return redirect('blog:post_detail', pk=self.get_object().pk)
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, "Post deleted.")
+        messages.success(request, "Post deleted successfully.")
         return super().delete(request, *args, **kwargs)
-# REGISTER VIEW
+
+
+# --------------------------
+# User Views
+# --------------------------
+
 def register_view(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
@@ -89,7 +95,7 @@ def register_view(request):
         form = CustomUserCreationForm()
     return render(request, "blog/register.html", {"form": form})
 
-# PROFILE VIEW
+
 @login_required
 def profile_view(request):
     if request.method == "POST":
@@ -98,9 +104,14 @@ def profile_view(request):
         request.user.save()
         messages.success(request, "Profile updated successfully.")
         return redirect("blog:profile")
-    return render(request, "blog/profile.html")
+    return render(request, "blog/profile.html", {"user": request.user})
 
-# Add comment
+
+# --------------------------
+# Comment Views
+# --------------------------
+
+@login_required
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == 'POST':
@@ -116,7 +127,7 @@ def add_comment(request, post_id):
         form = CommentForm()
     return render(request, 'blog/comment_form.html', {'form': form})
 
-# Edit comment
+
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -132,7 +143,7 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse('blog:post_detail', kwargs={'pk': self.object.post.id})
 
-# Delete comment
+
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
@@ -144,6 +155,29 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.error(self.request, "You cannot delete this comment.")
         return redirect('blog:post_detail', pk=self.get_object().post.id)
 
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Comment deleted successfully.")
+        return super().delete(request, *args, **kwargs)
+
     def get_success_url(self):
-        messages.success(self.request, "Comment deleted.")
         return reverse_lazy('blog:post_detail', kwargs={'pk': self.object.post.id})
+
+
+# --------------------------
+# Search & Tag Views
+# --------------------------
+
+def post_search(request):
+    query = request.GET.get('q', '').strip()
+    results = Post.objects.filter(
+        Q(title__icontains=query) |
+        Q(content__icontains=query) |
+        Q(tags__name__icontains=query)
+    ).distinct()
+    return render(request, 'blog/search_results.html', {'results': results, 'query': query})
+
+
+def posts_by_tag(request, tag_slug):
+    tag = get_object_or_404(Tag, slug=tag_slug)
+    posts = Post.objects.filter(tags=tag)
+    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})

@@ -14,10 +14,11 @@ class CustomUserCreationForm(UserCreationForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content']  # author & published_date set automatically
+        fields = ['title', 'content', 'tags']  # author & published_date set automatically
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Post title'}),
             'content': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Write your post...'}),
+            'tags': forms.TextInput(attrs={'placeholder': 'Add tags separated by commas'}),
         }
 
 class CommentForm(forms.ModelForm):
