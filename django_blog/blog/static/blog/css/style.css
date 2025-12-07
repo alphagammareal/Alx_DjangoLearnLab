@@ -1,0 +1,16 @@
+/* blog/static/blog/css/style.css */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 1rem;
+  line-height: 1.6;
+}
+header {
+  background: #222;
+  color: white;
+  padding: 1rem;
+}
+header a { color: white; text-decoration: none; }
+main { padding: 1rem 0; }
+ul { list-style-type: none; padding-left: 0; }
+li { margin-bottom: 0.5rem; }
