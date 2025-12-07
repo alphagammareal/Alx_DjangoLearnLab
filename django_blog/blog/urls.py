@@ -11,7 +11,7 @@ from .views import (
     register_view,
     profile_view,
     post_search,
-    posts_by_tag,
+    PostByTagListView,  # import the class-based tag view
 )
 
 app_name = 'blog'
@@ -23,8 +23,8 @@ urlpatterns = [
     path('post/<int:pk>/edit/', PostUpdateView.as_view(), name='post_update'),
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'),
 
-    # Comment URLs (corrected for checker)
-    path('post/<int:pk>/comments/new/', CommentCreateView.as_view(), name='comment_create'),
+    # Comment URLs
+    path('post/<int:post_id>/comments/new/', CommentCreateView.as_view(), name='comment_create'),
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update'),
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
 
@@ -32,7 +32,10 @@ urlpatterns = [
     path('register/', register_view, name='register'),
     path('profile/', profile_view, name='profile'),
 
-    # Search and Tag URLs
+    # Search
     path('search/', post_search, name='post_search'),
-    path('tag/<slug:tag_slug>/', posts_by_tag, name='posts_by_tag'),
+
+    # Tag URLs (class-based)
+    path('tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts_by_tag'),
 ]
+
