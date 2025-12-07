@@ -181,3 +181,19 @@ def posts_by_tag(request, tag_slug):
     tag = get_object_or_404(Tag, slug=tag_slug)
     posts = Post.objects.filter(tags=tag)
     return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def form_valid(self, form):
+        post_id = self.kwargs.get('post_id')
+        post = Post.objects.get(id=post_id)
+        form.instance.author = self.request.user
+        form.instance.post = post
+        messages.success(self.request, "Comment added successfully.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()  # redirects to post detail
