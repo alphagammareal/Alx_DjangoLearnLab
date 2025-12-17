@@ -41,32 +41,26 @@ class FeedView(generics.ListAPIView):
             author__in=following_users
         ).order_by('-created_at')
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_post(request, pk):
-    post = generics.get_object_or_404(Post, pk=pk)
+    post = Post.objects.get(pk=pk)
 
-    like, created = Like.objects.get_or_create(
-        user=request.user,
-        post=post
-    )
-
-    if not created:
-        like.delete()
-        return Response(
-            {'detail': 'Post unliked'},
-            status=status.HTTP_200_OK
-        )
-
-    if post.author != request.user:
-        Notification.objects.create(
-            recipient=post.author,
-            sender=request.user,
-            post=post,
-            message=f"{request.user.username} liked your post"
-        )
+    Like.objects.get_or_create(user=request.user, post=post)
 
     return Response(
-        {'detail': 'Post liked'},
-        status=status.HTTP_201_CREATED
+        {"detail": "Post liked"},
+        status=status.HTTP_200_OK
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unlike_post(request, pk):
+    Like.objects.filter(user=request.user, post_id=pk).delete()
+
+    return Response(
+        {"detail": "Post unliked"},
+        status=status.HTTP_200_OK
     )
