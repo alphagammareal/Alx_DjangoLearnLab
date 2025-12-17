@@ -53,3 +53,17 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user} liked Post {self.post.id}"
+    
+class Notification(models.Model):
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sent_notifications'
+    )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    message = models.CharField(max_length=255)
